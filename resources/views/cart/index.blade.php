@@ -2,6 +2,17 @@
     <div class="container lg:w-2/3 xl:w-2/3 mx-auto">
         <h1 class="text-3xl font-bold mb-6">Your Cart Items</h1>
 
+        @if (session('error'))
+            <div class="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+                {{ session('error') }}
+            </div>
+        @endif
+        @if (session('flash_message'))
+            <div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700">
+                {{ session('flash_message') }}
+            </div>
+        @endif
+
         <div x-data="{
             cartItems: {{
                 json_encode(

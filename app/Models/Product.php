@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -38,7 +40,16 @@ class Product extends Model
 
     public function getImageAttribute()
     {
-        return $this->images->count() > 0 ? $this->images->get(0)->url : null;
+        if ($this->images->count() === 0) {
+            return null;
+        }
+
+        $image = $this->images->get(0);
+        if ($image->path) {
+            return URL::to(Storage::url($image->path));
+        }
+
+        return $image->url;
     }
 
     public function categories()
