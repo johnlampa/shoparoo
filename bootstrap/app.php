@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'guestOrVerified' => GuestOrVerified::class,
             'admin' => Admin::class
         ]);
+        // Add CORS middleware
+        $middleware->web(append: [
+            \App\Http\Middleware\Cors::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
