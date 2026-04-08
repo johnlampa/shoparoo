@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -38,9 +39,37 @@ class AuthController extends Controller
                 'message' => 'Your email address is not verified'
             ], 403);
         }
-        $token = $user->createToken('main')->plainTextToken;
+
+        try {
+            $token = $user->createToken('main')->plainTextToken;
+        } catch (\Throwable $e) {
+            Log::error('Login token creation failed', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response([
+                'message' => 'Login failed during token creation',
+            ], 500);
+        }
+
+        try {
+            $resource = new UserResource($user);
+        } catch (\Throwable $e) {
+            Log::error('Login user resource serialization failed', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response([
+                'message' => 'Login failed during user serialization',
+            ], 500);
+        }
+
         return response([
-            'user' => new UserResource($user),
+            'user' => $resource,
             'token' => $token
         ]);
 
