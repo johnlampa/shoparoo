@@ -25,53 +25,47 @@ class AuthController extends Controller
             ], 422);
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        if (!$user->is_admin) {
-            Auth::logout();
-            return response([
-                'message' => 'You don\'t have permission to authenticate as admin'
-            ], 403);
-        }
-        if (!$user->email_verified_at) {
-            Auth::logout();
-            return response([
-                'message' => 'Your email address is not verified'
-            ], 403);
-        }
-
         try {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+
+            if (!$user->is_admin) {
+                Auth::logout();
+                return response([
+                    'message' => 'You don\'t have permission to authenticate as admin'
+                ], 403);
+            }
+
+            if (!$user->email_verified_at) {
+                Auth::logout();
+                return response([
+                    'message' => 'Your email address is not verified'
+                ], 403);
+            }
+
             $token = $user->createToken('main')->plainTextToken;
+
+            return response([
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'created_at' => $user->created_at?->format('Y-m-d H:i:s'),
+                ],
+                'token' => $token
+            ]);
         } catch (\Throwable $e) {
-            Log::error('Login token creation failed', [
+            Log::error('Login failed after authentication', [
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response([
-                'message' => 'Login failed during token creation',
+                'message' => 'Login failed after authentication',
             ], 500);
         }
-
-        try {
-            $resource = new UserResource($user);
-        } catch (\Throwable $e) {
-            Log::error('Login user resource serialization failed', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage(),
-            ]);
-
-            return response([
-                'message' => 'Login failed during user serialization',
-            ], 500);
-        }
-
-        return response([
-            'user' => $resource,
-            'token' => $token
-        ]);
 
     }
 
