@@ -26,7 +26,26 @@ class AuthController extends Controller
         /** @var User|null $user */
         $user = User::where('email', $credentials['email'])->first();
 
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        if (!$user) {
+            return response([
+                'message' => 'Email or password is incorrect'
+            ], 422);
+        }
+
+        try {
+            if (!Hash::check($credentials['password'], $user->password)) {
+                return response([
+                    'message' => 'Email or password is incorrect'
+                ], 422);
+            }
+        } catch (\RuntimeException $e) {
+            Log::channel('stderr')->warning('Password hash algorithm mismatch during login', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'exception' => $e::class,
+                'error' => $e->getMessage(),
+            ]);
+
             return response([
                 'message' => 'Email or password is incorrect'
             ], 422);
