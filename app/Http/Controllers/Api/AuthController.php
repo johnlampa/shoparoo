@@ -14,12 +14,15 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        $stage = 'validate_request';
+
         $credentials = $request->validate([
             'email'=> ['required', 'email'],
             'password' => 'required',
             'remember' => 'boolean'
         ]);
 
+        $stage = 'find_user';
         /** @var User|null $user */
         $user = User::where('email', $credentials['email'])->first();
 
@@ -30,26 +33,30 @@ class AuthController extends Controller
         }
 
         try {
-            Log::info('Login attempt for user', ['user_id' => $user->id, 'email' => $user->email]);
+            $stage = 'check_admin';
+            Log::channel('stderr')->info('Login attempt for user', ['user_id' => $user->id, 'email' => $user->email]);
 
             if (!$user->is_admin) {
-                Log::warning('Non-admin user attempted login', ['user_id' => $user->id]);
+                Log::channel('stderr')->warning('Non-admin user attempted login', ['user_id' => $user->id]);
                 return response([
                     'message' => 'You don\'t have permission to authenticate as admin'
                 ], 403);
             }
 
+            $stage = 'check_email_verified';
             if (!$user->email_verified_at) {
-                Log::warning('Unverified email user attempted login', ['user_id' => $user->id]);
+                Log::channel('stderr')->warning('Unverified email user attempted login', ['user_id' => $user->id]);
                 return response([
                     'message' => 'Your email address is not verified'
                 ], 403);
             }
 
-            Log::info('Creating token for user', ['user_id' => $user->id]);
+            $stage = 'create_token';
+            Log::channel('stderr')->info('Creating token for user', ['user_id' => $user->id]);
             $token = $user->createToken('main')->plainTextToken;
-            Log::info('Token created successfully', ['user_id' => $user->id]);
+            Log::channel('stderr')->info('Token created successfully', ['user_id' => $user->id]);
 
+            $stage = 'build_response';
             return response([
                 'user' => [
                     'id' => $user->id,
@@ -60,15 +67,19 @@ class AuthController extends Controller
                 'token' => $token
             ]);
         } catch (\Throwable $e) {
-            Log::error('Login failed after authentication', [
+            Log::channel('stderr')->error('Login failed after authentication', [
                 'user_id' => $user->id,
                 'email' => $user->email,
+                'stage' => $stage,
+                'exception' => $e::class,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
             return response([
                 'message' => 'Login failed after authentication',
+                'stage' => $stage,
+                'error' => $e->getMessage(),
             ], 500);
         }
 
