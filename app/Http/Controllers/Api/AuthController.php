@@ -30,19 +30,25 @@ class AuthController extends Controller
         }
 
         try {
+            Log::info('Login attempt for user', ['user_id' => $user->id, 'email' => $user->email]);
+
             if (!$user->is_admin) {
+                Log::warning('Non-admin user attempted login', ['user_id' => $user->id]);
                 return response([
                     'message' => 'You don\'t have permission to authenticate as admin'
                 ], 403);
             }
 
             if (!$user->email_verified_at) {
+                Log::warning('Unverified email user attempted login', ['user_id' => $user->id]);
                 return response([
                     'message' => 'Your email address is not verified'
                 ], 403);
             }
 
+            Log::info('Creating token for user', ['user_id' => $user->id]);
             $token = $user->createToken('main')->plainTextToken;
+            Log::info('Token created successfully', ['user_id' => $user->id]);
 
             return response([
                 'user' => [
