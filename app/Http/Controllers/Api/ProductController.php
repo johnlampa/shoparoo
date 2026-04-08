@@ -127,11 +127,13 @@ class ProductController extends Controller
      *
      *
      * @param UploadedFile[] $images
-     * @return string
+        * @return void
      * @throws \Exception
      */
     private function saveImages($images, $positions, Product $product)
     {
+        $disk = Storage::disk('public');
+
         foreach ($positions as $id => $position) {
             ProductImage::query()
                 ->where('id', $id)
@@ -140,11 +142,11 @@ class ProductController extends Controller
 
         foreach ($images as $id => $image) {
             $path = 'images/' . Str::random();
-            if (!Storage::exists($path)) {
-                Storage::makeDirectory($path, 0755, true);
+            if (!$disk->exists($path)) {
+                $disk->makeDirectory($path);
             }
-            $name = Str::random().'.'.$image->getClientOriginalExtension();
-            if (!Storage::putFileAS('public/' . $path, $image, $name)) {
+            $name = Str::random() . '.' . $image->getClientOriginalExtension();
+            if (!$disk->putFileAs($path, $image, $name)) {
                 throw new \Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
             }
             $relativePath = $path . '/' . $name;
@@ -162,6 +164,9 @@ class ProductController extends Controller
 
     private function deleteImages($imageIds, Product $product)
     {
+        $disk = Storage::disk('public');
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductImage> $images */
         $images = ProductImage::query()
             ->where('product_id', $product->id)
             ->whereIn('id', $imageIds)
@@ -170,7 +175,7 @@ class ProductController extends Controller
         foreach ($images as $image) {
             // If there is an old image, delete it
             if ($image->path) {
-                Storage::deleteDirectory('/public/' . dirname($image->path));
+                $disk->deleteDirectory(dirname($image->path));
             }
             $image->delete();
         }
