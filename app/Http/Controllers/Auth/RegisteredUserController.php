@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
@@ -41,6 +42,8 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $user = null;
+
         DB::beginTransaction();
         try {
             $user = User::create([
@@ -48,8 +51,6 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-
-            event(new Registered($user));
 
             $customer = new Customer();
             $names = explode(" ", $user->name);
@@ -61,10 +62,28 @@ class RegisteredUserController extends Controller
             Auth::login($user);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            Log::error('registration_failed', [
+                'email' => $request->email,
+                'error' => $e->getMessage(),
+            ]);
+
             return redirect()->back()->withInput()->with('error', 'Unable to register right now.');
         }
 
         DB::commit();
+
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            Log::warning('registration_verification_email_failed', [
+                'user_id' => $user?->id,
+                'email' => $user?->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect(route('home'))->with('warning', 'Account created, but verification email could not be sent right now.');
+        }
 
         Cart::moveCartItemsIntoDb();
 
