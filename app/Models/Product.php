@@ -41,15 +41,15 @@ class Product extends Model
     public function getImageAttribute()
     {
         if ($this->images->count() === 0) {
-            return null;
+            return URL::to('/img/noimage.png');
         }
 
         $image = $this->images->get(0);
-        if ($image->path) {
+        if ($image->path && Storage::disk('public')->exists($image->path)) {
             return URL::to(Storage::url($image->path));
         }
 
-        return $image->url;
+        return URL::to('/img/noimage.png');
     }
 
     public function categories()

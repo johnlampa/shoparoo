@@ -27,10 +27,10 @@ class ProductImage extends Model
 
     public function getUrlAttribute($value)
     {
-        if ($this->path) {
+        if ($this->path && Storage::disk('public')->exists($this->path)) {
             return URL::to(Storage::url($this->path));
         }
 
-        return $value;
+        return URL::to('/img/noimage.png');
     }
 }
