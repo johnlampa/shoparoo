@@ -75,7 +75,7 @@ class CustomerRequest extends FormRequest
             return false;
         }
 
-        $country = Country::query()->find($countryCode);
+        $country = Country::query()->where('code', $countryCode)->first();
         if (!$country || !$country->states) {
             return false;
         }
