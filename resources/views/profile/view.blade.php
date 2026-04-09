@@ -32,19 +32,36 @@
                         'country_code' => old('shipping.country_code', $shippingAddress->country_code),
                         'zipcode' => old('shipping.zipcode', $shippingAddress->zipcode),
                     ]) }},
-                    get billingCountryStates() {
-                        const country = this.countries.find(c => c.code === this.billingAddress.country_code)
-                        if (country && country.states) {
-                            return JSON.parse(country.states);
+                    parseCountryStates(countryCode) {
+                        const country = this.countries.find(c => c.code === countryCode)
+                        if (!country || !country.states) {
+                            return null;
                         }
-                        return null;
+
+                        let parsedStates = country.states;
+                        if (typeof parsedStates === 'string') {
+                            try {
+                                parsedStates = JSON.parse(parsedStates);
+                            } catch (e) {
+                                parsedStates = null;
+                            }
+                        }
+
+                        if (!parsedStates) {
+                            return null;
+                        }
+
+                        if (Array.isArray(parsedStates)) {
+                            return parsedStates.length > 0 ? Object.fromEntries(parsedStates.map(s => [s, s])) : null;
+                        }
+
+                        return Object.keys(parsedStates).length > 0 ? parsedStates : null;
+                    },
+                    get billingCountryStates() {
+                        return this.parseCountryStates(this.billingAddress.country_code);
                     },
                     get shippingCountryStates() {
-                        const country = this.countries.find(c => c.code === this.shippingAddress.country_code)
-                        if (country && country.states) {
-                            return JSON.parse(country.states);
-                        }
-                        return null;
+                        return this.parseCountryStates(this.shippingAddress.country_code);
                     }
                 }" action="{{ route('profile.update') }}" method="post">
                     @csrf
@@ -130,6 +147,7 @@
                             <x-input type="select"
                                      name="billing[country_code]"
                                      x-model="billingAddress.country_code"
+                                     @change="if (!billingCountryStates) billingAddress.state = ''"
                                      class="w-full focus:border-purple-600 focus:ring-purple-600 border-gray-300 rounded">
                                 <option value="">Select Country</option>
                                 <template x-for="country of countries" :key="country.code">
@@ -157,7 +175,8 @@
                                     type="text"
                                     name="billing[state]"
                                     x-model="billingAddress.state"
-                                    placeholder="State"
+                                    x-bind:disabled="billingAddress.country_code && !billingCountryStates"
+                                    x-bind:placeholder="billingAddress.country_code && !billingCountryStates ? 'N/A for selected country' : 'State'"
                                     class="w-full focus:border-purple-600 focus:ring-purple-600 border-gray-300 rounded"
                                 />
                             </template>
@@ -217,6 +236,7 @@
                             <x-input type="select"
                                      name="shipping[country_code]"
                                      x-model="shippingAddress.country_code"
+                                     @change="if (!shippingCountryStates) shippingAddress.state = ''"
                                      class="w-full focus:border-purple-600 focus:ring-purple-600 border-gray-300 rounded">
                                 <option value="">Select Country</option>
                                 <template x-for="country of countries" :key="country.code">
@@ -244,7 +264,8 @@
                                     type="text"
                                     name="shipping[state]"
                                     x-model="shippingAddress.state"
-                                    placeholder="State"
+                                    x-bind:disabled="shippingAddress.country_code && !shippingCountryStates"
+                                    x-bind:placeholder="shippingAddress.country_code && !shippingCountryStates ? 'N/A for selected country' : 'State'"
                                     class="w-full focus:border-purple-600 focus:ring-purple-600 border-gray-300 rounded"
                                 />
                             </template>

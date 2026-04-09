@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Country;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProfileRequest extends FormRequest
 {
@@ -32,18 +34,36 @@ class ProfileRequest extends FormRequest
             'shipping.address1' => ['required'],
             'shipping.address2' => ['required'],
             'shipping.city' => ['required'],
-            'shipping.state' => ['required'],
+            'shipping.state' => [Rule::requiredIf(fn () => $this->countryHasStates($this->input('shipping.country_code')))],
             'shipping.zipcode' => ['required'],
             'shipping.country_code' => ['required', 'exists:countries,code'],
 
             'billing.address1' => ['required'],
             'billing.address2' => ['required'],
             'billing.city' => ['required'],
-            'billing.state' => ['required'],
+            'billing.state' => [Rule::requiredIf(fn () => $this->countryHasStates($this->input('billing.country_code')))],
             'billing.zipcode' => ['required'],
             'billing.country_code' => ['required', 'exists:countries,code'],
 
         ];
+    }
+
+    protected function countryHasStates(?string $countryCode): bool
+    {
+        if (!$countryCode) {
+            return false;
+        }
+
+        $country = Country::query()->find($countryCode);
+        if (!$country || !$country->states) {
+            return false;
+        }
+
+        $states = is_string($country->states)
+            ? json_decode($country->states, true)
+            : $country->states;
+
+        return is_array($states) && count($states) > 0;
     }
 
     public function attributes()
