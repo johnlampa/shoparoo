@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'brevo' => [
+        'api_key' => env('BREVO_API_KEY'),
+        'base_url' => env('BREVO_API_BASE_URL', 'https://api.brevo.com/v3/'),
+        'timeout' => env('BREVO_API_TIMEOUT', 15),
+    ],
+
 ];

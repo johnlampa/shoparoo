@@ -11,10 +11,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\User;
+use App\Services\BrevoTransactionalMailer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
@@ -264,9 +264,10 @@ class CheckoutController extends Controller
 
         try {
             $adminUsers = User::where('is_admin', 1)->get();
+            $mailer = app(BrevoTransactionalMailer::class);
 
             foreach ([...$adminUsers, $order->user] as $user) {
-                Mail::to($user)->send(new NewOrderEmail($order, (bool)$user->is_admin));
+                $mailer->sendMailable($user->email, $user->name, new NewOrderEmail($order, (bool)$user->is_admin));
             }
         } catch (\Exception $e) {
             Log::critical('Email sending does not work. '. $e->getMessage());
