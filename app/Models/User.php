@@ -82,14 +82,22 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected function verificationUrl(): string
     {
-        return URL::temporarySignedRoute(
+        $signedPath = URL::temporarySignedRoute(
             'verification.verify',
             Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
             [
                 'id' => $this->getKey(),
                 'hash' => sha1($this->getEmailForVerification()),
             ],
+            absolute: false,
         );
+
+        $origin = request()?->getSchemeAndHttpHost();
+        if (is_string($origin) && $origin !== '') {
+            return rtrim($origin, '/') . $signedPath;
+        }
+
+        return url($signedPath);
     }
 
     protected function passwordResetUrl(string $token): string
