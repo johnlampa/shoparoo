@@ -76,7 +76,7 @@ class RegisteredUserController extends Controller
         try {
             event(new Registered($user));
         } catch (\Throwable $e) {
-            Log::warning('registration_verification_email_failed', [
+            Log::channel('stderr')->error('registration_verification_email_failed', [
                 'user_id' => $user?->id,
                 'email' => $user?->email,
                 'error' => $e->getMessage(),

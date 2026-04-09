@@ -23,7 +23,7 @@ class EmailVerificationNotificationController extends Controller
         try {
             $request->user()->sendEmailVerificationNotification();
         } catch (\Throwable $e) {
-            Log::warning('verification_email_send_failed', [
+            Log::channel('stderr')->error('verification_email_send_failed', [
                 'user_id' => $request->user()->id,
                 'email' => $request->user()->email,
                 'error' => $e->getMessage(),
