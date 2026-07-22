@@ -13,6 +13,8 @@ class Customer extends Model
 
     protected $primaryKey = 'user_id';
 
+    public $incrementing = false;
+
     protected $fillable = ['first_name', 'last_name', 'phone', 'status',];
 
     public function user()
