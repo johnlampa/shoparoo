@@ -2,7 +2,10 @@
     <div class="w-[400px] mx-auto py-32">
 
         <div class="mb-4 text-sm text-gray-600">
-            {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+            {{ __('Thanks for signing up! Before getting started, please verify your email address. Check your inbox (and spam folder) for a message from us. If you didn\'t receive it, you can resend below.') }}
+        </div>
+        <div class="mb-4 text-sm text-gray-500">
+            Signed in as <span class="font-medium text-gray-700">{{ auth()->user()->email }}</span>
         </div>
 
         @if (session('status') == 'verification-link-sent')
