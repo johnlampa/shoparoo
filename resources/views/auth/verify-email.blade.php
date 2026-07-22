@@ -11,6 +11,12 @@
             </div>
         @endif
 
+        @if (session('warning'))
+            <div class="mb-4 font-medium text-sm text-amber-600">
+                {{ session('warning') }}
+            </div>
+        @endif
+
         @if (session('error'))
             <div class="mb-4 font-medium text-sm text-red-600">
                 {{ session('error') }}

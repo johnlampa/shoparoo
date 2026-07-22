@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\CustomerStatus;
 use App\Helpers\Cart;
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
@@ -53,10 +54,11 @@ class RegisteredUserController extends Controller
             ]);
 
             $customer = new Customer();
-            $names = explode(" ", $user->name);
+            $names = explode(' ', $user->name, 2);
             $customer->user_id = $user->id;
             $customer->first_name = $names[0];
             $customer->last_name = $names[1] ?? '';
+            $customer->status = CustomerStatus::Active->value;
             $customer->save();
 
             Auth::login($user);
@@ -73,6 +75,8 @@ class RegisteredUserController extends Controller
 
         DB::commit();
 
+        Cart::moveCartItemsIntoDb();
+
         try {
             event(new Registered($user));
         } catch (\Throwable $e) {
@@ -82,11 +86,11 @@ class RegisteredUserController extends Controller
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect(route('home'))->with('warning', 'Account created, but verification email could not be sent right now.');
+            return redirect()
+                ->route('verification.notice')
+                ->with('warning', 'Account created, but verification email could not be sent right now. You can resend it below.');
         }
 
-        Cart::moveCartItemsIntoDb();
-
-        return redirect(route('home'));
+        return redirect()->route('verification.notice');
     }
 }

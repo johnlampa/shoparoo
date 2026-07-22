@@ -56,7 +56,10 @@ class LoginRequest extends FormRequest
 
         $user = $this->user();
         $customer = $user->customer;
-        if ($customer->status !== CustomerStatus::Active->value) {
+
+        // Only block explicitly disabled accounts. Null/missing status is treated as
+        // active so unverified users can still sign in and reach email verification.
+        if ($customer && $customer->status === CustomerStatus::Disabled->value) {
             Auth::guard('web')->logout();
             $this->session()->invalidate();
             $this->session()->regenerateToken();

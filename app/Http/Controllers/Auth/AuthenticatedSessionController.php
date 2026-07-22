@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\CustomerStatus;
 use App\Helpers\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,6 +33,10 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         Cart::moveCartItemsIntoDb();
+
+        if (!$request->user()->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
 
         return redirect()->intended(route('home'));
     }
