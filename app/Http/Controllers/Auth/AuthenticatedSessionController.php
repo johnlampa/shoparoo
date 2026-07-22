@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -35,7 +36,23 @@ class AuthenticatedSessionController extends Controller
         Cart::moveCartItemsIntoDb();
 
         if (!$request->user()->hasVerifiedEmail()) {
-            return redirect()->route('verification.notice');
+            try {
+                $request->user()->sendEmailVerificationNotification();
+
+                return redirect()
+                    ->route('verification.notice')
+                    ->with('status', 'verification-link-sent');
+            } catch (\Throwable $e) {
+                Log::channel('stderr')->error('login_verification_email_failed', [
+                    'user_id' => $request->user()->id,
+                    'email' => $request->user()->email,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return redirect()
+                    ->route('verification.notice')
+                    ->with('error', 'You need to verify your email before continuing. We could not send the verification email right now — check that BREVO_API_KEY is set correctly on the server, then use Resend below.');
+            }
         }
 
         return redirect()->intended(route('home'));
