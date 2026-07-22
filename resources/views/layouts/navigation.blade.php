@@ -4,393 +4,142 @@
         cartItemsCount: {{ \App\Helpers\Cart::getCartItemsCount() }},
     }"
     @cart-change.window="cartItemsCount = $event.detail.count"
-    class="flex justify-between bg-slate-800 shadow-md text-white"
+    class="sticky top-0 z-40 border-b border-ink-900/10 bg-ink-900 text-white shadow-soft"
 >
-    <div>
-        <a href="{{ route('home') }}" class="block py-navbar-item pl-5"> Shoparoo </a>
-    </div>
-    <!-- Responsive Menu -->
-    <div
-        class="block fixed z-10 top-0 bottom-0 height h-full w-[220px] transition-all bg-slate-900 md:hidden"
-        :class="mobileMenuOpen ? 'left-0' : '-left-[220px]'"
-    >
-        <ul>
-            <li>
-                <a
-                    href="{{ route('cart.index') }}"
-                    class="relative flex items-center justify-between py-2 px-3 transition-colors hover:bg-slate-800"
-                >
-                    <div class="flex items-center">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 mr-2 -mt-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                        </svg>
-                        Cart
-                    </div>
-                    <!-- Cart Items Counter -->
-                    <small
-                        x-show="cartItemsCount"
-                        x-transition
-                        x-text="cartItemsCount"
-                        x-cloak
-                        class="py-[2px] px-[8px] rounded-full bg-red-500"
-                    ></small>
-                    <!--/ Cart Items Counter -->
-                </a>
-            </li>
-            @if (!Auth::guest())
-                <li x-data="{open: false}" class="relative">
-                    <a
-                        @click="open = !open"
-                        class="cursor-pointer flex justify-between items-center py-2 px-3 hover:bg-slate-800"
-                    >
-              <span class="flex items-center">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                  <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                My Account
-              </span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                    </a>
-                    <ul
-                        x-show="open"
-                        x-transition
-                        class="z-10 right-0 bg-slate-800 py-2"
-                    >
-                        <li>
-                            <a href="{{ route('profile') }}" class="flex px-3 py-2 hover:bg-slate-900">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-5 w-5 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                    />
-                                </svg>
-                                My Profile
-                            </a>
-                        </li>
-                        <li class="hover:bg-slate-900">
-                            <a
-                                href="{{ route('order.index') }}"
-                                class="flex items-center px-3 py-2 hover:bg-slate-900"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-5 w-5 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                                    />
-                                </svg>
-                                My Orders
-                            </a>
-                        </li>
-                        <li class="hover:bg-slate-900">
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
+    <div class="mx-auto max-w-7xl px-3 sm:px-5">
+        <div class="flex items-center gap-3 sm:gap-6 py-3">
+            <a href="{{ route('home') }}" class="shrink-0 font-display text-2xl sm:text-3xl font-extrabold tracking-tight text-white hover:text-brand-300 transition-colors">
+                Shoparoo
+            </a>
 
-                                <a href="{{ route('logout') }}"
-                                   class="flex items-center px-3 py-2 hover:bg-slate-900"
-                                   onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 mr-2"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                        />
-                                    </svg>
-                                    {{ __('Log Out') }}
-                                </a>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            @else
-                <li>
-                    <a
-                        href="{{ route('login') }}"
-                        class="flex items-center py-2 px-3 transition-colors hover:bg-slate-800"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-6 w-6 mr-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                            />
-                        </svg>
-                        Login
-                    </a>
-                </li>
-                <li class="px-3 py-3">
-                    <a
-                        href="{{ route('register') }}"
-                        class="block text-center text-white bg-emerald-600 py-2 px-3 rounded shadow-md hover:bg-emerald-700 active:bg-emerald-800 transition-colors w-full"
-                    >
-                        Register now
-                    </a>
-                </li>
-            @endif
-        </ul>
-    </div>
-    <!--/ Responsive Menu -->
-    <nav class="hidden md:block">
-        <ul class="grid grid-flow-col items-center">
-            <li>
-                <a
-                    href="{{ route('cart.index') }}"
-                    class="relative inline-flex items-center py-navbar-item px-navbar-item hover:bg-slate-900"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
+            <form action="{{ route('home') }}" method="GET" class="hidden sm:flex flex-1 max-w-2xl">
+                <div class="relative w-full flex">
+                    <input
+                        type="search"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Search products, brands, and more…"
+                        class="w-full rounded-l-md border-0 py-2.5 pl-4 pr-3 text-ink-800 placeholder:text-slate-400 focus:ring-2 focus:ring-brand-400"
+                    />
+                    <button type="submit" class="rounded-r-md bg-brand-500 px-5 font-semibold hover:bg-brand-600 transition-colors">
+                        Search
+                    </button>
+                </div>
+            </form>
+
+            <nav class="hidden md:flex items-center ml-auto gap-1">
+                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-white/10 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
-                    Cart
+                    <span class="text-sm font-medium">Cart</span>
                     <small
                         x-show="cartItemsCount"
                         x-transition
                         x-cloak
                         x-text="cartItemsCount"
-                        class="absolute z-[100] top-4 -right-3 py-[2px] px-[8px] rounded-full bg-red-500"
+                        class="absolute -top-1 -right-1 min-w-[1.25rem] text-center py-0.5 px-1.5 rounded-full bg-brand-500 text-xs font-bold"
                     ></small>
                 </a>
-            </li>
-            @if (!Auth::guest())
-                <li x-data="{open: false}" class="relative">
-                    <a
-                        @click="open = !open"
-                        class="cursor-pointer flex items-center py-navbar-item px-navbar-item pr-5 hover:bg-slate-900"
-                    >
-              <span class="flex items-center">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                  <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                My Account
-              </span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 ml-2"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                        >
-                            <path
-                                fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd"
-                            />
-                        </svg>
-                    </a>
-                    <ul
-                        @click.outside="open = false"
-                        x-show="open"
-                        x-transition
-                        x-cloak
-                        class="absolute z-10 right-0 bg-slate-800 py-2 w-48"
-                    >
-                        <li>
-                            <a
-                                href="{{ route('profile') }}"
-                                class="flex px-3 py-2 hover:bg-slate-900"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-5 w-5 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                    />
-                                </svg>
-                                My Profile
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="{{ route('order.index') }}"
-                                class="flex px-3 py-2 hover:bg-slate-900"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    class="h-5 w-5 mr-2"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                                    />
-                                </svg>
-                                My Orders
-                            </a>
-                        </li>
-                        <li>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
 
-                                <a href="{{ route('logout') }}"
-                                   class="flex px-3 py-2 hover:bg-slate-900"
-                                   onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        class="h-5 w-5 mr-2"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                        />
-                                    </svg>
-                                    {{ __('Log Out') }}
-                                </a>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            @else
-                <li>
-                    <a
-                        href="{{ route('login') }}"
-                        class="flex items-center py-navbar-item px-navbar-item hover:bg-slate-900"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5 mr-2"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            stroke-width="2"
+                @if (!Auth::guest())
+                    <div x-data="{open: false}" class="relative">
+                        <button
+                            type="button"
+                            @click="open = !open"
+                            class="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-white/10 transition-colors"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                            />
-                        </svg>
-                        Login
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span class="text-sm font-medium">Account</span>
+                        </button>
+                        <ul
+                            @click.outside="open = false"
+                            x-show="open"
+                            x-transition
+                            x-cloak
+                            class="absolute right-0 mt-1 w-48 rounded-lg bg-ink-800 py-2 shadow-lift ring-1 ring-white/10"
+                        >
+                            <li><a href="{{ route('profile') }}" class="block px-4 py-2 text-sm hover:bg-white/10">My Profile</a></li>
+                            <li><a href="{{ route('order.index') }}" class="block px-4 py-2 text-sm hover:bg-white/10">My Orders</a></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <a href="{{ route('logout') }}"
+                                       class="block px-4 py-2 text-sm hover:bg-white/10"
+                                       onclick="event.preventDefault(); this.closest('form').submit();">
+                                        Log Out
+                                    </a>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10 transition-colors">Login</a>
+                    <a href="{{ route('register') }}" class="ml-1 rounded-md bg-brand-500 px-3 py-2 text-sm font-semibold hover:bg-brand-600 transition-colors">
+                        Register
                     </a>
-                </li>
-                <li>
-                    <a
-                        href="{{ route('register') }}"
-                        class="inline-flex items-center text-white bg-emerald-600 py-2 px-3 rounded shadow-md hover:bg-emerald-700 active:bg-emerald-800 transition-colors mx-5"
-                    >
-                        Register now
-                    </a>
-                </li>
-            @endif
-        </ul>
-    </nav>
-    <button
-        @click="mobileMenuOpen = !mobileMenuOpen"
-        class="p-4 block md:hidden"
+                @endif
+            </nav>
+
+            <button @click="mobileMenuOpen = !mobileMenuOpen" class="ml-auto p-2 md:hidden rounded-md hover:bg-white/10" aria-label="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <form action="{{ route('home') }}" method="GET" class="sm:hidden pb-3">
+            <div class="flex">
+                <input
+                    type="search"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search Shoparoo…"
+                    class="w-full rounded-l-md border-0 py-2 pl-3 text-ink-800 text-sm focus:ring-2 focus:ring-brand-400"
+                />
+                <button type="submit" class="rounded-r-md bg-brand-500 px-4 text-sm font-semibold">Go</button>
+            </div>
+        </form>
+    </div>
+
+    {{-- Mobile drawer --}}
+    <div
+        class="fixed inset-0 z-50 md:hidden"
+        x-show="mobileMenuOpen"
+        x-cloak
     >
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
+        <div class="absolute inset-0 bg-black/50" @click="mobileMenuOpen = false"></div>
+        <div
+            class="absolute top-0 bottom-0 w-[260px] bg-ink-900 shadow-lift transition-transform"
+            :class="mobileMenuOpen ? 'left-0' : '-left-[260px]'"
         >
-            <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-            />
-        </svg>
-    </button>
+            <div class="p-4 border-b border-white/10 font-display text-xl font-bold">Shoparoo</div>
+            <ul class="py-2">
+                <li>
+                    <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-4 py-3 hover:bg-white/10">
+                        <span>Cart</span>
+                        <small x-show="cartItemsCount" x-text="cartItemsCount" x-cloak class="rounded-full bg-brand-500 px-2 py-0.5 text-xs"></small>
+                    </a>
+                </li>
+                @if (!Auth::guest())
+                    <li><a href="{{ route('profile') }}" class="block px-4 py-3 hover:bg-white/10">My Profile</a></li>
+                    <li><a href="{{ route('order.index') }}" class="block px-4 py-3 hover:bg-white/10">My Orders</a></li>
+                    <li>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a href="{{ route('logout') }}" class="block px-4 py-3 hover:bg-white/10"
+                               onclick="event.preventDefault(); this.closest('form').submit();">Log Out</a>
+                        </form>
+                    </li>
+                @else
+                    <li><a href="{{ route('login') }}" class="block px-4 py-3 hover:bg-white/10">Login</a></li>
+                    <li class="px-4 py-3">
+                        <a href="{{ route('register') }}" class="block text-center bg-brand-500 rounded-md py-2 font-semibold">Register</a>
+                    </li>
+                @endif
+            </ul>
+        </div>
+    </div>
 </header>

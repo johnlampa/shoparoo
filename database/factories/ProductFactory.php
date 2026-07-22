@@ -16,11 +16,16 @@ class ProductFactory extends Factory
      */
     public function definition()
     {
+        $price = fake()->randomFloat(2, 4.99, 299.99);
+        $hasDiscount = fake()->boolean(60);
+
         return [
-            'title' => fake()->text(),
-            'image' => fake()->imageUrl(),
-            'description' => fake()->realText(2000),
-            'price' => fake()->randomFloat(2, 2, 5),
+            'title' => fake()->words(4, true),
+            'description' => '<p>' . fake()->paragraphs(3, true) . '</p>',
+            'price' => $price,
+            'compare_at_price' => $hasDiscount ? round($price * fake()->randomFloat(2, 1.1, 1.5), 2) : null,
+            'quantity' => fake()->numberBetween(5, 200),
+            'published' => true,
             'created_at' => now(),
             'updated_at' => now(),
             'created_by' => 1,

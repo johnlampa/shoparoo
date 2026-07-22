@@ -16,7 +16,25 @@ class Product extends Model
     use HasSlug;
     use SoftDeletes;
 
-    protected $fillable = ['title', 'description', 'price', 'quantity', 'published', 'created_by', 'updated_by'];
+    protected $fillable = [
+        'title',
+        'description',
+        'price',
+        'compare_at_price',
+        'quantity',
+        'published',
+        'created_by',
+        'updated_by',
+    ];
+
+    public function getDiscountPercentAttribute(): ?int
+    {
+        if (!$this->compare_at_price || $this->compare_at_price <= $this->price) {
+            return null;
+        }
+
+        return (int) round((($this->compare_at_price - $this->price) / $this->compare_at_price) * 100);
+    }
 
     /**
      * Get the options for generating the slug.

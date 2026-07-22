@@ -21,6 +21,7 @@ class ProductListResource extends JsonResource
             'title' => $this->title,
             'image_url' => $this->image,
             'price' => $this->price,
+            'compare_at_price' => $this->compare_at_price,
             'quantity' => $this->quantity,
             'updated_at' => ( new \DateTime($this->updated_at) )->format('Y-m-d H:i:s'),
         ];

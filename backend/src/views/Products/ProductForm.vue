@@ -14,6 +14,7 @@
           <CustomInput class="mb-2" v-model="product.title" label="Product Title" :errors="errors['title']"/>
           <CustomInput type="richtext" class="mb-2" v-model="product.description" label="Description" :errors="errors['description']"/>
           <CustomInput type="number" class="mb-2" v-model="product.price" label="Price" prepend="$" :errors="errors['price']"/>
+          <CustomInput type="number" class="mb-2" v-model="product.compare_at_price" label="Compare at Price" prepend="$" :errors="errors['compare_at_price']"/>
           <CustomInput type="number" class="mb-2" v-model="product.quantity" label="Quantity" :errors="errors['quantity']"/>
           <CustomInput type="checkbox" class="mb-2" v-model="product.published" label="Published" :errors="errors['published']"/>
           <treeselect v-model="product.categories" :multiple="true" :options="options" :errors="errors['categories']"/>
@@ -71,6 +72,7 @@ const product = ref({
   image_positions: {},
   description: '',
   price: null,
+  compare_at_price: null,
   quantity: null,
   published: false,
   categories: []

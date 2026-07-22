@@ -4,40 +4,115 @@
 
 @layer base {
   .py-navbar-item {
-    @apply py-6
+    @apply py-4;
   }
 
   .pt-navbar-item {
-    @apply pt-6
+    @apply pt-4;
   }
 
   .pb-navbar-item {
-    @apply pb-6
+    @apply pb-4;
   }
 
   .px-navbar-item {
-    @apply px-3
+    @apply px-3;
   }
 
   .pl-navbar-item {
-    @apply pl-3
+    @apply pl-3;
   }
 
   .pr-navbar-item {
-    @apply pr-3
+    @apply pr-3;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-ink-800 antialiased;
+    background-color: #f4f6f8;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 10% -10%, rgba(245, 114, 36, 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 90% 0%, rgba(30, 41, 59, 0.06), transparent 50%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 40%, #eef1f5 100%);
+    min-height: 100vh;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply text-white bg-purple-600 py-2 px-4 rounded shadow-md hover:bg-purple-700 active:bg-purple-800 transition-colors;
+    @apply inline-flex items-center justify-center text-white bg-brand-500 py-2 px-4 rounded-md
+      font-semibold shadow-sm hover:bg-brand-600 active:bg-brand-700 transition-colors;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center text-ink-800 bg-white/80 py-2 px-4 rounded-md
+      font-medium border border-ink-200 hover:border-brand-400 hover:text-brand-600 transition-colors;
+  }
+
+  .section-shell {
+    @apply bg-white rounded-xl shadow-soft overflow-hidden;
+  }
+
+  .price-now {
+    @apply text-brand-600 font-bold tracking-tight;
+  }
+
+  .price-was {
+    @apply text-ink-200 line-through text-sm;
+  }
+
+  .discount-badge {
+    @apply absolute top-2 left-2 z-10 bg-brand-500 text-white text-xs font-bold px-2 py-1 rounded;
   }
 }
 
-body {
-  background-color: #e5e7eb;
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out both;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.4s ease-out both;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
 
 .wysiwyg-content > blockquote,
 .wysiwyg-content > dl,

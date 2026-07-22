@@ -7,7 +7,7 @@
                     'price' => $product->price,
                     'quantity' => $product->quantity,
                     'addToCartUrl' => route('cart.add', $product)
-                ]) }})" class="container mx-auto">
+                ]) }})" class="section-shell p-4 sm:p-6">
         <div class="grid gap-6 grid-cols-1 lg:grid-cols-5">
             <div class="lg:col-span-3">
                 <div
@@ -84,8 +84,8 @@
                         <template x-for="image in images">
                             <a
                                 @click.prevent="activeImage = image"
-                                class="cursor-pointer w-[80px] h-[80px] border border-gray-300 hover:border-purple-500 flex items-center justify-center"
-                                :class="{'border-purple-600': activeImage === image}"
+                                class="cursor-pointer w-[80px] h-[80px] border border-gray-300 hover:border-brand-500 flex items-center justify-center"
+                                :class="{'border-brand-500 ring-1 ring-brand-500': activeImage === image}"
                             >
                                 <img :src="image" alt="" class="w-auto max-auto max-h-full"/>
                             </a>
@@ -94,17 +94,27 @@
                 </div>
             </div>
             <div class="lg:col-span-2">
-                <h1 class="text-lg font-semibold">
-                    {{$product->title}}
+                @if ($product->discount_percent)
+                    <span class="inline-block mb-2 bg-brand-500 text-white text-xs font-bold px-2 py-1 rounded">
+                        -{{ $product->discount_percent }}% OFF
+                    </span>
+                @endif
+                <h1 class="font-display text-2xl font-bold text-ink-900 leading-snug">
+                    {{ $product->title }}
                 </h1>
-                <div class="text-xl font-bold mb-6">${{$product->price}}</div>
+                <div class="flex items-baseline gap-3 mt-3 mb-6">
+                    <span class="price-now text-3xl">${{ number_format($product->price, 2) }}</span>
+                    @if ($product->compare_at_price && $product->compare_at_price > $product->price)
+                        <span class="price-was text-base">${{ number_format($product->compare_at_price, 2) }}</span>
+                    @endif
+                </div>
                 @if ($product->quantity === 0)
-                    <div class="bg-red-400 text-white py-2 px-3 rounded mb-3">
-                        The product is out of stock
+                    <div class="bg-red-500 text-white py-2 px-3 rounded mb-3 text-sm font-medium">
+                        This product is out of stock
                     </div>
                 @endif
                 <div class="flex items-center justify-between mb-5">
-                    <label for="quantity" class="block font-bold mr-4">
+                    <label for="quantity" class="block font-semibold mr-4">
                         Quantity
                     </label>
                     <input
@@ -113,14 +123,14 @@
                         x-ref="quantityEl"
                         value="1"
                         min="1"
-                        class="w-32 focus:border-purple-500 focus:outline-none rounded"
+                        class="w-32 focus:border-brand-500 focus:ring-brand-500 rounded"
                     />
                 </div>
                 <button
                     :disabled="product.quantity === 0"
                     @click="addToCart($refs.quantityEl.value)"
                     class="btn-primary py-4 text-lg flex justify-center min-w-0 w-full mb-6"
-                    :class="product.quantity === 0 ? 'cursor-not-allowed' : 'cursor-pointer'"
+                    :class="product.quantity === 0 ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -142,7 +152,7 @@
                     <div
                         x-show="expanded"
                         x-collapse.min.120px
-                        class="text-gray-500 wysiwyg-content"
+                        class="text-slate-600 wysiwyg-content"
                     >
                         {!! $product->description !!}
                     </div>
@@ -150,7 +160,7 @@
                         <a
                             @click="expanded = !expanded"
                             href="javascript:void(0)"
-                            class="text-purple-500 hover:text-purple-700"
+                            class="text-brand-600 hover:text-brand-700 font-medium"
                             x-text="expanded ? 'Read Less' : 'Read More'"
                         ></a>
                     </p>

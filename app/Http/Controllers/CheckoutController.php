@@ -33,11 +33,9 @@ class CheckoutController extends Controller
 
         [$products, $cartItems] = Cart::getProductsAndCartItems();
 
-        $orderItems = [];
-        $lineItems = [];
-        $totalPrice = 0;
-
-        DB::beginTransaction();
+        if ($products->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
 
         foreach ($products as $product) {
             $quantity = $cartItems[$product->id]['quantity'];
@@ -51,6 +49,10 @@ class CheckoutController extends Controller
             }
         }
 
+        $orderItems = [];
+        $lineItems = [];
+        $totalPrice = 0;
+
         foreach ($products as $product) {
             $quantity = $cartItems[$product->id]['quantity'];
             $totalPrice += $product->price * $quantity;
@@ -61,7 +63,7 @@ class CheckoutController extends Controller
                         'name' => $product->title,
                         'images' => $product->image ? [$product->image] : []
                     ],
-                    'unit_amount' => $product->price * 100,
+                    'unit_amount' => (int) round($product->price * 100),
                 ],
                 'quantity' => $quantity,
             ];
@@ -70,25 +72,34 @@ class CheckoutController extends Controller
                 'quantity' => $quantity,
                 'unit_price' => $product->price
             ];
-
-            if ($product->quantity !== null) {
-                $product->quantity -= $quantity;
-                $product->save();
-            }
         }
-//        dd(route('checkout.failure', [], true));
 
-//        dd(route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}');
+        // Stripe requires a minimum of $0.50 USD for Checkout Sessions
+        if ($totalPrice < 0.50) {
+            return redirect()->route('cart.index')->with(
+                'error',
+                'The minimum order total for checkout is $0.50. Please add more items to your cart.'
+            );
+        }
 
-        $session = \Stripe\Checkout\Session::create([
-            'line_items' => $lineItems,
-            'mode' => 'payment',
-            'customer_creation' => 'always',
-            'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('checkout.failure', [], true),
-        ]);
+        DB::beginTransaction();
 
         try {
+            foreach ($products as $product) {
+                $quantity = $cartItems[$product->id]['quantity'];
+                if ($product->quantity !== null) {
+                    $product->quantity -= $quantity;
+                    $product->save();
+                }
+            }
+
+            $session = \Stripe\Checkout\Session::create([
+                'line_items' => $lineItems,
+                'mode' => 'payment',
+                'customer_creation' => 'always',
+                'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => route('checkout.failure', [], true),
+            ]);
 
             // Create Order
             $orderData = [
@@ -117,14 +128,21 @@ class CheckoutController extends Controller
             ];
             Payment::create($paymentData);
 
+            DB::commit();
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            DB::rollBack();
+            Log::error('Stripe checkout failed: '.$e->getMessage(), ['userId' => $user->id]);
+
+            return redirect()->route('cart.index')->with(
+                'error',
+                'Unable to start checkout. Please check your cart total and try again.'
+            );
         } catch (\Exception $e) {
             DB::rollBack();
-
             Log::critical(__METHOD__ . ' method does not work. '. $e->getMessage());
             throw $e;
         }
 
-        DB::commit();
         CartItem::where(['user_id' => $user->id])->delete();
 
         return redirect($session->url);
@@ -172,6 +190,13 @@ class CheckoutController extends Controller
     {
         \Stripe\Stripe::setApiKey(getenv('STRIPE_SECRET_KEY'));
 
+        if ($order->total_price < 0.50) {
+            return redirect()->back()->with(
+                'error',
+                'The minimum order total for checkout is $0.50.'
+            );
+        }
+
         $lineItems = [];
         foreach ($order->items as $item) {
             $lineItems[] = [
@@ -179,24 +204,34 @@ class CheckoutController extends Controller
                     'currency' => 'usd',
                     'product_data' => [
                         'name' => $item->product->title,
-//                        'images' => [$product->image]
                     ],
-                    'unit_amount' => $item->unit_price * 100,
+                    'unit_amount' => (int) round($item->unit_price * 100),
                 ],
                 'quantity' => $item->quantity,
             ];
         }
 
-        $session = \Stripe\Checkout\Session::create([
-            'line_items' => $lineItems,
-            'mode' => 'payment',
-            'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('checkout.failure', [], true),
-        ]);
+        try {
+            $session = \Stripe\Checkout\Session::create([
+                'line_items' => $lineItems,
+                'mode' => 'payment',
+                'success_url' => route('checkout.success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => route('checkout.failure', [], true),
+            ]);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            Log::error('Stripe checkoutOrder failed: '.$e->getMessage(), [
+                'orderId' => $order->id,
+                'userId' => $request->user()?->id,
+            ]);
+
+            return redirect()->back()->with(
+                'error',
+                'Unable to start checkout. Please try again.'
+            );
+        }
 
         $order->payment->session_id = $session->id;
         $order->payment->save();
-
 
         return redirect($session->url);
     }

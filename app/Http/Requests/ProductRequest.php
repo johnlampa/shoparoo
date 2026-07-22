@@ -30,6 +30,7 @@ class ProductRequest extends FormRequest
             'image_positions.*' => ['nullable', 'int'],
             'categories.*' => ['nullable', 'int', 'exists:categories,id'],
             'price' => ['required', 'numeric', 'min:0.01'],
+            'compare_at_price' => ['nullable', 'numeric', 'min:0.01'],
             'quantity' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'published' => ['required', 'boolean']

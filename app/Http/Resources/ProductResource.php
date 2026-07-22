@@ -26,6 +26,7 @@ class ProductResource extends JsonResource
             'image_url' => $this->image,
             'images' => $this->images,
             'price' => $this->price,
+            'compare_at_price' => $this->compare_at_price,
             'quantity' => $this->quantity,
             'published' => (bool)$this->published,
             'categories' => $this->categories->map(fn($c) => $c->id),
