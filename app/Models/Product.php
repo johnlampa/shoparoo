@@ -62,12 +62,7 @@ class Product extends Model
             return URL::to('/img/noimage.png');
         }
 
-        $image = $this->images->get(0);
-        if ($image->path && Storage::disk('public')->exists($image->path)) {
-            return URL::to(Storage::url($image->path));
-        }
-
-        return URL::to('/img/noimage.png');
+        return $this->images->get(0)->url;
     }
 
     public function categories()

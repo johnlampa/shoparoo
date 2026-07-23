@@ -44,12 +44,10 @@ class ProductSeeder extends Seeder
 
             foreach ($item['images'] as $position => $imageUrl) {
                 $stored = $this->storeImage($imageUrl, $product->id, $position);
-                if ($stored) {
-                    ProductImage::create($stored + [
-                        'product_id' => $product->id,
-                        'position' => $position,
-                    ]);
-                }
+                ProductImage::create($stored + [
+                    'product_id' => $product->id,
+                    'position' => $position,
+                ]);
             }
         }
     }
@@ -508,16 +506,16 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @return array{path: string, url: string, mime: string, size: int}|null
+     * @return array{path: string, url: string, mime: string, size: int}
      */
-    private function storeImage(string $url, int $productId, int $position): ?array
+    private function storeImage(string $url, int $productId, int $position): array
     {
         $folder = 'images/' . Str::random(16);
         $filename = Str::random(16) . '.jpg';
         $path = $folder . '/' . $filename;
 
         try {
-            $response = Http::timeout(20)
+            $response = Http::timeout(15)
                 ->withHeaders(['User-Agent' => 'ShoparooProductSeeder/1.0'])
                 ->get($url);
 
@@ -526,7 +524,8 @@ class ProductSeeder extends Seeder
 
                 return [
                     'path' => $path,
-                    'url' => Storage::disk('public')->url($path),
+                    // Keep the remote URL so images still work on ephemeral disks (Render).
+                    'url' => $url,
                     'mime' => 'image/jpeg',
                     'size' => Storage::disk('public')->size($path),
                 ];
@@ -535,36 +534,11 @@ class ProductSeeder extends Seeder
             $this->command?->warn("Could not download image for product #{$productId}: {$e->getMessage()}");
         }
 
-        return $this->storePlaceholder($path, $productId, $position);
-    }
-
-    /**
-     * @return array{path: string, url: string, mime: string, size: int}|null
-     */
-    private function storePlaceholder(string $path, int $productId, int $position): ?array
-    {
-        $svg = <<<SVG
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1e293b"/>
-      <stop offset="100%" stop-color="#f97316"/>
-    </linearGradient>
-  </defs>
-  <rect width="800" height="800" fill="url(#g)"/>
-  <text x="400" y="390" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="36" font-weight="700">Shoparoo</text>
-  <text x="400" y="440" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="Arial, sans-serif" font-size="22">Product #{$productId}-{$position}</text>
-</svg>
-SVG;
-
-        $pngPath = preg_replace('/\.jpg$/', '.svg', $path);
-        Storage::disk('public')->put($pngPath, $svg);
-
         return [
-            'path' => $pngPath,
-            'url' => Storage::disk('public')->url($pngPath),
-            'mime' => 'image/svg+xml',
-            'size' => Storage::disk('public')->size($pngPath),
+            'path' => '',
+            'url' => $url,
+            'mime' => 'image/jpeg',
+            'size' => 0,
         ];
     }
 }

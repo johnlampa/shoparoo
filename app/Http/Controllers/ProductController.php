@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class ProductController extends Controller
 {
@@ -64,14 +65,16 @@ class ProductController extends Controller
         $topCategories = collect();
 
         if ($isHome && !request()->filled('search')) {
-            $flashSaleProducts = Product::query()
-                ->with('images')
-                ->where('published', true)
-                ->whereNotNull('compare_at_price')
-                ->whereColumn('compare_at_price', '>', 'price')
-                ->orderByRaw('(compare_at_price - price) / compare_at_price DESC')
-                ->limit(6)
-                ->get();
+            if (Schema::hasColumn('products', 'compare_at_price')) {
+                $flashSaleProducts = Product::query()
+                    ->with('images')
+                    ->where('published', true)
+                    ->whereNotNull('compare_at_price')
+                    ->whereColumn('compare_at_price', '>', 'price')
+                    ->orderByRaw('(compare_at_price - price) / compare_at_price DESC')
+                    ->limit(6)
+                    ->get();
+            }
 
             $topCategories = Category::query()
                 ->where('active', true)

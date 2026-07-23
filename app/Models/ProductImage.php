@@ -31,6 +31,11 @@ class ProductImage extends Model
             return URL::to(Storage::url($this->path));
         }
 
+        // Remote/CDN URL stored for ephemeral disks (e.g. Render)
+        if (is_string($value) && str_starts_with($value, 'http')) {
+            return $value;
+        }
+
         return URL::to('/img/noimage.png');
     }
 }

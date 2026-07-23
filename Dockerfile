@@ -5,4 +5,4 @@ COPY . /app
 WORKDIR /app
 RUN composer install --optimize-autoloader --no-scripts --no-interaction
 RUN npm ci && npm run build
-CMD ["sh", "-lc", "php artisan storage:link --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
+CMD ["sh", "-lc", "php artisan storage:link --force && php artisan migrate --force && php artisan db:seed --class=CatalogSeeder --force && php artisan serve --host=0.0.0.0 --port=$PORT"]
