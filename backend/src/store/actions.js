@@ -1,5 +1,21 @@
 import axiosClient from "../axios";
 
+/**
+ * Laravel pagination links are absolute and often use the wrong host/scheme
+ * behind Render. Always hit the axios baseURL and only forward `page`.
+ */
+function pageFromUrl(url) {
+  if (!url) {
+    return undefined;
+  }
+
+  try {
+    return new URL(url, window.location.origin).searchParams.get('page') || undefined;
+  } catch (e) {
+    return undefined;
+  }
+}
+
 export function getCurrentUser({commit}, data) {
   return axiosClient.get('/user', data)
     .then(({data}) => {
@@ -35,14 +51,14 @@ export function getCountries({commit}) {
 
 export function getOrders({commit, state}, {url = null, search = '', per_page, sort_field, sort_direction} = {}) {
   commit('setOrders', [true])
-  url = url || '/orders'
-  const params = {
-    per_page: state.orders.limit,
-  }
-  return axiosClient.get(url, {
+  const page = pageFromUrl(url)
+  return axiosClient.get('/orders', {
     params: {
-      ...params,
-      search, per_page, sort_field, sort_direction
+      search,
+      per_page: per_page || state.orders.limit,
+      sort_field,
+      sort_direction,
+      ...(page ? { page } : {}),
     }
   })
     .then((response) => {
@@ -59,14 +75,14 @@ export function getOrder({commit}, id) {
 
 export function getProducts({commit, state}, {url = null, search = '', per_page, sort_field, sort_direction} = {}) {
   commit('setProducts', [true])
-  url = url || '/products'
-  const params = {
-    per_page: state.products.limit,
-  }
-  return axiosClient.get(url, {
+  const page = pageFromUrl(url)
+  return axiosClient.get('/products', {
     params: {
-      ...params,
-      search, per_page, sort_field, sort_direction
+      search,
+      per_page: per_page || state.products.limit,
+      sort_field,
+      sort_direction,
+      ...(page ? { page } : {}),
     }
   })
     .then((response) => {
@@ -124,14 +140,14 @@ export function deleteProduct({commit}, id) {
 
 export function getUsers({commit, state}, {url = null, search = '', per_page, sort_field, sort_direction} = {}) {
   commit('setUsers', [true])
-  url = url || '/users'
-  const params = {
-    per_page: state.users.limit,
-  }
-  return axiosClient.get(url, {
+  const page = pageFromUrl(url)
+  return axiosClient.get('/users', {
     params: {
-      ...params,
-      search, per_page, sort_field, sort_direction
+      search,
+      per_page: per_page || state.users.limit,
+      sort_field,
+      sort_direction,
+      ...(page ? { page } : {}),
     }
   })
     .then((response) => {
@@ -152,14 +168,14 @@ export function updateUser({commit}, user) {
 
 export function getCustomers({commit, state}, {url = null, search = '', per_page, sort_field, sort_direction} = {}) {
   commit('setCustomers', [true])
-  url = url || '/customers'
-  const params = {
-    per_page: state.customers.limit,
-  }
-  return axiosClient.get(url, {
+  const page = pageFromUrl(url)
+  return axiosClient.get('/customers', {
     params: {
-      ...params,
-      search, per_page, sort_field, sort_direction
+      search,
+      per_page: per_page || state.customers.limit,
+      sort_field,
+      sort_direction,
+      ...(page ? { page } : {}),
     }
   })
     .then((response) => {

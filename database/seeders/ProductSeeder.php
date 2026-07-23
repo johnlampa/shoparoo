@@ -7,8 +7,6 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
@@ -16,8 +14,6 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $adminId = User::where('is_admin', true)->value('id') ?? 1;
-
-        Storage::disk('public')->makeDirectory('images');
 
         foreach ($this->catalog() as $item) {
             $category = Category::where('slug', Str::slug($item['category']))->first();
@@ -92,7 +88,7 @@ class ProductSeeder extends Seeder
                     '250ml pack. Keep refrigerated after opening.'
                 ),
                 'images' => [
-                    'https://images.unsplash.com/photo-1628088062854-d1870b455688?w=800&h=800&fit=crop',
+                    'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -280,7 +276,6 @@ class ProductSeeder extends Seeder
                 ),
                 'images' => [
                     'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1584990347449-a2d4c2f1f49a?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -309,7 +304,7 @@ class ProductSeeder extends Seeder
                     '30ml dropper bottle · Fragrance-free · Dermatologist tested.'
                 ),
                 'images' => [
-                    'https://images.unsplash.com/photo-1620916561605-c4e987637776?w=800&h=800&fit=crop',
+                    'https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -323,7 +318,7 @@ class ProductSeeder extends Seeder
                     'Pack of 4 · Medium soft bristles.'
                 ),
                 'images' => [
-                    'https://images.unsplash.com/photo-1607613009820-a29f7bb81c40?w=800&h=800&fit=crop',
+                    'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -351,7 +346,7 @@ class ProductSeeder extends Seeder
                     '200ml pump bottle · Tear-free formula.'
                 ),
                 'images' => [
-                    'https://images.unsplash.com/photo-1519689373023-dd07c7988603?w=800&h=800&fit=crop',
+                    'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -394,7 +389,7 @@ class ProductSeeder extends Seeder
                     '140g × 5 packs.'
                 ),
                 'images' => [
-                    'https://images.unsplash.com/photo-1612929636598-2802bbc27bdc?w=800&h=800&fit=crop',
+                    'https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -423,7 +418,6 @@ class ProductSeeder extends Seeder
                 ),
                 'images' => [
                     'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&h=800&fit=crop',
-                    'https://images.unsplash.com/photo-1578587018452-892b722ab364?w=800&h=800&fit=crop',
                 ],
             ],
             [
@@ -506,34 +500,13 @@ class ProductSeeder extends Seeder
     }
 
     /**
+     * Store remote CDN URLs only (no local download).
+     * Works on ephemeral disks (Render) and avoids dead Unsplash downloads.
+     *
      * @return array{path: string, url: string, mime: string, size: int}
      */
     private function storeImage(string $url, int $productId, int $position): array
     {
-        $folder = 'images/' . Str::random(16);
-        $filename = Str::random(16) . '.jpg';
-        $path = $folder . '/' . $filename;
-
-        try {
-            $response = Http::timeout(15)
-                ->withHeaders(['User-Agent' => 'ShoparooProductSeeder/1.0'])
-                ->get($url);
-
-            if ($response->successful() && strlen($response->body()) > 500) {
-                Storage::disk('public')->put($path, $response->body());
-
-                return [
-                    'path' => $path,
-                    // Keep the remote URL so images still work on ephemeral disks (Render).
-                    'url' => $url,
-                    'mime' => 'image/jpeg',
-                    'size' => Storage::disk('public')->size($path),
-                ];
-            }
-        } catch (\Throwable $e) {
-            $this->command?->warn("Could not download image for product #{$productId}: {$e->getMessage()}");
-        }
-
         return [
             'path' => '',
             'url' => $url,

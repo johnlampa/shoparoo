@@ -2,21 +2,19 @@
 
 namespace Database\Seeders;
 
-use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 /**
  * Idempotent catalog bootstrap for deploys (e.g. Render).
- * Runs categories always; seeds demo products only when the catalog is sparse.
+ * Always refreshes categories and demo products/images.
  */
 class CatalogSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call(CategorySeeder::class);
-
-        if (Product::withTrashed()->count() < 10) {
-            $this->call(ProductSeeder::class);
-        }
+        $this->call([
+            CategorySeeder::class,
+            ProductSeeder::class,
+        ]);
     }
 }
