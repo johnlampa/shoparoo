@@ -1,19 +1,17 @@
 <x-app-layout>
-
-    <form action="{{ route('password.email') }}" method="post" class="w-[400px] mx-auto p-6 my-16">
+    <form action="{{ route('password.email') }}" method="post" class="section-shell w-full max-w-md mx-auto p-6 sm:p-8 my-8 sm:my-12">
         @csrf
-        <h2 class="text-2xl font-semibold text-center mb-5">
-            Enter your Email to reset password
+        <h2 class="font-display text-2xl font-bold text-center text-ink-900 mb-2">
+            Reset your password
         </h2>
 
-        <!-- Session Status -->
         <x-auth-session-status class="mb-4" :status="session('status')"/>
 
-        <p class="text-center text-gray-500 mb-6">
+        <p class="text-center text-slate-500 mb-6">
             or
             <a
                 href="{{ route('login') }}"
-                class="text-purple-600 hover:text-purple-500"
+                class="font-medium text-brand-600 hover:text-brand-700"
             >
                 login with existing account
             </a>
@@ -23,9 +21,7 @@
             <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required
                      autofocus placeholder="Enter your Email Address"/>
         </div>
-        <button
-            class="btn-primary bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 w-full"
-        >
+        <button type="submit" class="btn-primary w-full py-3">
             Email Password Reset Link
         </button>
     </form>

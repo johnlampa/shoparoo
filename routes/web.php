@@ -35,10 +35,13 @@ Route::middleware(['auth', 'verified'])->group(function() {
     Route::get('/profile', [ProfileController::class, 'view'])->name('profile');
     Route::post('/profile', [ProfileController::class, 'store'])->name('profile.update');
     Route::post('/profile/password-update', [ProfileController::class, 'passwordUpdate'])->name('profile_password.update');
+    // GET handlers: after login, Laravel redirects to the intended URL as GET (POST → 405 otherwise).
+    Route::get('/checkout', [CheckoutController::class, 'checkoutRedirect'])->name('cart.checkout.redirect');
     Route::post('/checkout', [CheckoutController::class, 'checkout'])->name('cart.checkout');
-    Route::post('/checkout/{order}', [CheckoutController::class, 'checkoutOrder'])->name('cart.checkout-order');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/failure', [CheckoutController::class, 'failure'])->name('checkout.failure');
+    Route::get('/checkout/{order}', [CheckoutController::class, 'checkoutOrderRedirect'])->name('cart.checkout-order.redirect');
+    Route::post('/checkout/{order}', [CheckoutController::class, 'checkoutOrder'])->name('cart.checkout-order');
     Route::get('/orders', [OrderController::class, 'index'])->name('order.index');
     Route::get('/orders/{order}', [OrderController::class, 'view'])->name('order.view');
 });

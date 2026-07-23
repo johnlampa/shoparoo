@@ -2,16 +2,16 @@
     <form
         action="{{ route('register') }}"
         method="post"
-        class="w-[400px] mx-auto p-6 my-16"
+        class="section-shell w-full max-w-md mx-auto p-6 sm:p-8 my-8 sm:my-12"
     >
         @csrf
 
-        <h2 class="text-2xl font-semibold text-center mb-4">Create an account</h2>
-        <p class="text-center text-gray-500 mb-3">
+        <h2 class="font-display text-2xl font-bold text-center text-ink-900 mb-2">Create an account</h2>
+        <p class="text-center text-slate-500 mb-6">
             or
             <a
                 href="{{ route('login') }}"
-                class="text-sm text-purple-700 hover:text-purple-600"
+                class="text-sm font-medium text-brand-600 hover:text-brand-700"
             >
                 login with existing account
             </a>
@@ -23,7 +23,6 @@
             </div>
         @endif
 
-        <!-- Session Status -->
         <x-auth-session-status class="mb-4" :status="session('status')"/>
 
         <div class="mb-4">
@@ -39,9 +38,7 @@
             <x-input placeholder="Repeat Password" type="password" name="password_confirmation"/>
         </div>
 
-        <button
-            class="btn-primary bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 w-full"
-        >
+        <button type="submit" class="btn-primary w-full py-3">
             Signup
         </button>
     </form>

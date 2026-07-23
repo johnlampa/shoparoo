@@ -19,6 +19,22 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CheckoutController extends Controller
 {
+    public function checkoutRedirect()
+    {
+        return redirect()->route('cart.index')->with(
+            'flash_message',
+            'Please review your cart and click Proceed to Checkout to continue.'
+        );
+    }
+
+    public function checkoutOrderRedirect(Order $order)
+    {
+        return redirect()->route('order.view', $order)->with(
+            'flash_message',
+            'Click Make a Payment to continue checkout.'
+        );
+    }
+
     public function checkout(Request $request)
     {
         /** @var \App\Models\User $user */

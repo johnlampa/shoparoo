@@ -2,6 +2,16 @@
 
     <div class="container mx-auto lg:w-2/3 p-5">
         <h1 class="text-3xl font-bold mb-2">Order #{{$order->id}}</h1>
+        @if (session('flash_message'))
+            <div class="mb-4 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-brand-800">
+                {{ session('flash_message') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+                {{ session('error') }}
+            </div>
+        @endif
         <div class="bg-white rounded-lg p-3">
             <table>
                 <tbody>

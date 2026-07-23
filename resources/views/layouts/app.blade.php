@@ -18,14 +18,14 @@
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
 @include('layouts.navigation')
 
-<main class="mx-auto max-w-7xl px-3 sm:px-5 py-4 sm:py-6">
+<main class="flex-1 mx-auto w-full max-w-7xl px-3 sm:px-5 py-4 sm:py-6">
     {{ $slot }}
 </main>
 
-<footer class="mt-10 border-t border-ink-200/80 bg-ink-900 text-ink-100">
+<footer class="mt-auto border-t border-ink-200/80 bg-ink-900 text-ink-100">
     <div class="mx-auto max-w-7xl px-5 py-10 grid gap-8 sm:grid-cols-3">
         <div>
             <p class="font-display text-2xl font-bold text-white tracking-tight">Shoparoo</p>

@@ -23,7 +23,7 @@
                         <td class="py-1 px-2">
                             <a
                                 href="{{ route('order.view', $order) }}"
-                                class="text-purple-600 hover:text-purple-500"
+                                class="text-brand-500 hover:text-brand-500"
                             >
                                 #{{$order->id}}
                             </a>
